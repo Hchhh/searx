@@ -41,10 +41,9 @@ except:
 
 if sys.version_info[0] == 3:
     unicode = str
-
 logger = logger.getChild('search')
-
 number_of_searches = 0
+
 max_request_timeout = settings.get('outgoing', {}).get('max_request_timeout' or None)
 if max_request_timeout is None:
     logger.info('max_request_timeout={0}'.format(max_request_timeout))
