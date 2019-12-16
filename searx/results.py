@@ -81,10 +81,13 @@ def merge_two_infoboxes(infobox1, infobox2):
             infobox1['img_src'] = img2
         elif weight2 > weight1:
             infobox1['img_src'] = img2
- #----- modified by zjn -----
+
     if 'attributes' in infobox2:
         attributes1 = infobox1.get('attributes', None)
+         #----- modified by zjn -----
+         # ==None->is None
         if attributes1 is None:
+            
             attributes1 = []
             infobox1['attributes'] = attributes1
 
