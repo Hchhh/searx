@@ -602,12 +602,6 @@ engines:
     engine : spotify
     shortcut : stf
 
-  - name : startpage
-    engine : startpage
-    shortcut : sp
-    timeout : 6.0
-    disabled : True
-
   - name : tokyotoshokan
     engine : tokyotoshokan
     shortcut : tt
@@ -734,24 +728,31 @@ engines:
     page_size : 10
     disabled : True
 
-  - name : mojeek
+  - name: mojeek
     shortcut: mjk
     engine: xpath
-    paging : True
-    search_url : https://www.mojeek.com/search?q={query}&s={pageno}
+    paging: True
+    search_url: https://www.mojeek.com/search?q={query}&s={pageno}
     results_xpath: /html/body//div[@class="results"]/ul[@class="results-standard"]/li
-    url_xpath : ./h2/a/@href
-    title_xpath : ./h2
-    content_xpath : ./p[@class="s"]
-    suggestion_xpath : /html/body//div[@class="top-info"]/p[@class="top-info spell"]/a
-    first_page_num : 0
-    page_size : 10
-    disabled : True
+    url_xpath: ./h2/a/@href
+    title_xpath: ./h2
+    content_xpath: ./p[@class="s"]
+    suggestion_xpath: /html/body//div[@class="top-info"]/p[@class="top-info spell"]/a
+    first_page_num: 0
+    page_size: 10
+    disabled: True
 
-  - name : seedpeer
-    shortcut : speu
-    engine : seedpeer
+  - name: seedpeer
+    shortcut: speu
+    engine: seedpeer
     categories: files, music, videos
+
+  # ----- modified by HeJiaqing -----
+  - name: baidu
+    engine: baidu
+    shortcut: bd
+    timeout: 6.0
+    disabled: True
 
 #  - name : yacy
 #    engine : yacy

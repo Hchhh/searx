@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 import mock
-from searx.engines import startpage
+from searx.engines import baidu
 from searx.testing import SearxTestCase
 
 
@@ -12,7 +12,7 @@ class TestStartpageEngine(SearxTestCase):
         dicto = defaultdict(dict)
         dicto['pageno'] = 1
         dicto['language'] = 'fr_FR'
-        params = startpage.request(query, dicto)
+        params = baidu.request(query, dicto)
         self.assertIn('url', params)
         self.assertIn('startpage.com', params['url'])
         self.assertIn('data', params)
@@ -20,16 +20,16 @@ class TestStartpageEngine(SearxTestCase):
         self.assertIn(query, params['data']['query'])
 
         dicto['language'] = 'all'
-        params = startpage.request(query, dicto)
+        params = baidu.request(query, dicto)
 
     def test_response(self):
-        self.assertRaises(AttributeError, startpage.response, None)
-        self.assertRaises(AttributeError, startpage.response, [])
-        self.assertRaises(AttributeError, startpage.response, '')
-        self.assertRaises(AttributeError, startpage.response, '[]')
+        self.assertRaises(AttributeError, baidu.response, None)
+        self.assertRaises(AttributeError, baidu.response, [])
+        self.assertRaises(AttributeError, baidu.response, '')
+        self.assertRaises(AttributeError, baidu.response, '[]')
 
         response = mock.Mock(text='<html></html>')
-        self.assertEqual(startpage.response(response), [])
+        self.assertEqual(baidu.response(response), [])
 
         html = """
 <div class="w-gl__result">
@@ -59,7 +59,7 @@ class TestStartpageEngine(SearxTestCase):
             </div>
         """  # noqa
         response = mock.Mock(text=html.encode('utf-8'))
-        results = startpage.response(response)
+        results = baidu.response(response)
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]['title'], 'This should be the title')

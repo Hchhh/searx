@@ -207,6 +207,7 @@ class EnginesSetting(SwitchableSetting):
                 transformed_choices.append(transformed_choice)
         self.choices = transformed_choices
 
+    #
     def transform_form_items(self, items):
         return [item[len('engine_'):].replace('_', ' ').replace('  ', '__') for item in items]
 

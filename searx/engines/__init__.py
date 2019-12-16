@@ -254,6 +254,7 @@ def load_engines(engine_list):
     return engines
 
 
+# 找到指定引擎启动搜索引擎
 def initialize_engines(engine_list):
     load_engines(engine_list)
 
