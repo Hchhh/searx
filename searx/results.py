@@ -309,11 +309,6 @@ class ResultContainer(object):
             res['category'] = engines[res['engine']].categories[0]
 
             # FIXME : handle more than one category per engine
-             #----- modified by zjn -----
-             # + = -> join
-            #category = engines[res['engine']].categories[0]\
-                #+ ':' + res.get('template', '')\
-                #+ ':' + ('img_src' if 'img_src' in res or 'thumbnail' in res else '')
              category = engines[res['engine']].categories[0]\
                 + ':' + res.get('template', '')\
                 + ':' + ('img_src' if 'img_src' in res or 'thumbnail' in res else '')
