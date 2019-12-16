@@ -7,6 +7,7 @@
     {% include 'courgette/search.html' %}
 </div>
 <div id="results">
+    <!-- modified by ly -->
     <div id="sidebar">
         <div id="search_url">
             {{ _('Search URL') }}:
@@ -15,7 +16,7 @@
         <div id="apis">
             {{ _('Download results') }}<br />
             {% for output_type in ('csv', 'json', 'rss') %}
-            <form method="{{ method or 'POST' }}" action="{{ url_for('index') }}">
+            <form method="{{ method or 'POST' }}" action="{{ url_for('index') }}">  <!-- 通过http方式传递 -->
                 <div class="left">
                     <input type="hidden" name="q" value="{{ q|e }}" />
                     <input type="hidden" name="format" value="{{ output_type }}" />
@@ -23,7 +24,7 @@
                     <input type="hidden" name="category_{{ category }}" value="1"/>
                     {% endfor %}
                     <input type="hidden" name="pageno" value="{{ pageno }}" />
-                    <input type="submit" value="{{ output_type }}" />
+                    <input type="submit" value="{{ output_type }}" />  <!-- 获得保存格式 -->
                 </div>
             </form>
             {% endfor %}

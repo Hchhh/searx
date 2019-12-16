@@ -453,7 +453,8 @@ def post_request(response):
     response.headers.add('Server-Timing', ', '.join(timings_all))
     return response
 
-
+# ----- modified by ly -----
+#未爬取到数据，输出错误信息
 def index_error(output_format, error_message):
     if output_format == 'json':
         return Response(json.dumps({'error': error_message}),
@@ -568,8 +569,13 @@ def index():
                         result['publishedDate'] = gettext(u'{hours} hour(s), {minutes} minute(s) ago').format(hours=hours, minutes=minutes)  # noqa
                 else:
                     result['publishedDate'] = format_date(result['publishedDate'])
-
+    # ----- modified by ly -----
+    # 增加网页的不同输出格式的保存功能
     if output_format == 'json':
+        #对相关变量进行赋值，并利用爬虫返回json格式结果
+
+        #dump函数将字典中的数据转换为字符串便于写入json文件
+        #通过字典的值利用response对象进行爬虫爬取页面数据
         return Response(json.dumps({'query': search_query.query.decode('utf-8'),
                                     'number_of_results': number_of_results,
                                     'results': results,
@@ -580,20 +586,29 @@ def index():
                                     'unresponsive_engines': list(result_container.unresponsive_engines)},
                                    default=lambda item: list(item) if isinstance(item, set) else item),
                         mimetype='application/json')
+
     elif output_format == 'csv':
         csv = UnicodeWriter(StringIO())
+        #定义相关关键字
         keys = ('title', 'url', 'content', 'host', 'engine', 'score')
+        #写入
         csv.writerow(keys)
         for row in results:
+            #host关键字保存结果界面网址，解析url
             row['host'] = row['parsed_url'].netloc
             csv.writerow([row.get(key, '') for key in keys])
         csv.stream.seek(0)
+        #读取stream内容并爬取数据
         response = Response(csv.stream.read(), mimetype='application/csv')
         cont_disp = 'attachment;Filename=searx_-_{0}.csv'.format(search_query.query)
+        #在http响应内容的头部内容中增加描述
         response.headers.add('Content-Disposition', cont_disp)
         return response
+
     elif output_format == 'rss':
+        #渲染变量到模版中
         response_rss = render(
+            #调用xml文件，对参数赋值
             'opensearch_response_rss.xml',
             results=results,
             q=request.form['q'],
@@ -973,7 +988,7 @@ class ReverseProxyPathFix(object):
 
 application = app
 # patch app to handle non root url-s behind proxy & wsgi
-app.wsgi_app = ReverseProxyPathFix(ProxyFix(application.wsgi_app))
+app.wsgi_app = ReverseProxyPathFix(application.wsgi_app)
 
 if __name__ == "__main__":
     run()

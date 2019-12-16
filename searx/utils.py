@@ -148,15 +148,14 @@ def html_to_text(html):
     s.feed(html)
     return s.get_text()
 
-
+# ----- modified by ly -----
 class UnicodeWriter:
     """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
+    一个CSV写入器，将搜索结果行写入CSV文件“f”，用来反编码
     """
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        # Redirect output to a queue
+        # 将输出转换成一个序列
         self.queue = StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
@@ -166,20 +165,20 @@ class UnicodeWriter:
         if IS_PY2:
             row = [s.encode("utf-8") if hasattr(s, 'encode') else s for s in row]
         self.writer.writerow(row)
-        # Fetch UTF-8 output from the queue ...
+        # 从队列中得到格式为UTF-8的输出
         data = self.queue.getvalue()
         if IS_PY2:
             data = data.decode("utf-8")
         else:
             data = data.strip('\x00')
-        # ... and reencode it into the target encoding
+        # 将输出重新编码为原结果
         data = self.encoder.encode(data)
-        # write to the target stream
+        #写入目标流
         if IS_PY2:
             self.stream.write(data)
         else:
             self.stream.write(data.decode("utf-8"))
-        # empty queue
+        # 队列为空
         self.queue.truncate(0)
 
     def writerows(self, rows):
