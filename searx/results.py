@@ -12,14 +12,6 @@ if sys.version_info[0] == 3:
 CONTENT_LEN_IGNORED_CHARS_REGEX = re.compile(r'[,;:!?\./\\\\ ()-_]', re.M | re.U)
 WHITESPACE_REGEX = re.compile('( |\t|\n)+', re.M | re.U)
 
-# return the meaningful length of the content for a result
-def result_content_len(content):
-    if isinstance(content, basestring):
-        return len(CONTENT_LEN_IGNORED_CHARS_REGEX.sub('', content))
-    else:
-        return 0
-
-
 def compare_urls(url_a, url_b):
     # ignore www. in comparison
     if url_a.netloc.startswith('www.'):
@@ -43,6 +35,14 @@ def compare_urls(url_a, url_b):
         else url_b.path
 
     return unquote(path_a) == unquote(path_b)
+# return the meaningful length of the content for a result
+def result_content_len(content):
+    if isinstance(content, basestring):
+        return len(CONTENT_LEN_IGNORED_CHARS_REGEX.sub('', content))
+    else:
+        return 0
+
+
 
 
 def merge_two_infoboxes(infobox1, infobox2):
