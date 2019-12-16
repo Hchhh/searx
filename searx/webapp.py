@@ -155,8 +155,11 @@ _category_names = (gettext('files'),
 outgoing_proxies = settings['outgoing'].get('proxies') or None
 
 
+
 @babel.localeselector
 def get_locale():
+    # ----- modified by WenkeHuang -----
+    # using if statement A and statement B to decrease the running time
     if 'locale' in request.form\
        and request.form['locale'] in settings['locales']:
         return request.form['locale']
@@ -208,8 +211,10 @@ def code_highlighter(codelines, language=None):
             line_code_start = line
 
         # add codepart
-        tmp_code += code + '\n'
-
+        # ----- modified by WenkeHuang -----
+        # using join rather than +=
+        # tmp_code += code + '\n'
+        tmp_code=tmp_code.join(code+'\n')
         # update line
         last_line = line
 
@@ -445,10 +450,21 @@ def post_request(response):
     timings_all = ['total;dur=' + str(round(total_time * 1000, 3))]
     if len(request.timings) > 0:
         timings = sorted(request.timings, key=lambda v: v['total'])
-        timings_total = ['total_' + str(i) + '_' + v['engine'] +
-                         ';dur=' + str(round(v['total'] * 1000, 3)) for i, v in enumerate(timings)]
-        timings_load = ['load_' + str(i) + '_' + v['engine'] +
-                        ';dur=' + str(round(v['load'] * 1000, 3)) for i, v in enumerate(timings)]
+        # ----- modified by WenkeHuang -----
+        # this repeatedly calculate the same value in loop
+        # timings_total = ['total_' + str(i) + '_' + v['engine'] +
+        #                  ';dur=' + str(round(v['total'] * 1000, 3)) for i, v in enumerate(timings)]
+        # timings_load = ['load_' + str(i) + '_' + v['engine'] +
+        #                 ';dur=' + str(round(v['load'] * 1000, 3)) for i, v in enumerate(timings)]
+        for i, v in enumerate(timings):
+            temp_v1 = str(i)
+            temp_v2 = v['engine']
+            temp_v3 = str(round(v['total'] * 1000, 3))
+            timings_total = ['total_' + temp_v1 + '_' + temp_v2 +
+                             ';dur=' + temp_v3]
+            timings_load = ['load_' + temp_v1 + '_' + temp_v2 +
+                            ';dur=' + temp_v3]
+
         timings_all = timings_all + timings_total + timings_load
     response.headers.add('Server-Timing', ', '.join(timings_all))
     return response
@@ -855,8 +871,7 @@ Allow: /
 Allow: /about
 Disallow: /stats
 Disallow: /preferences
-Disallow: /*?*q=*
-""", mimetype='text/plain')
+Disallow: /*?*q=""", mimetype='text/plain')
 
 
 @app.route('/opensearch.xml', methods=['GET'])
