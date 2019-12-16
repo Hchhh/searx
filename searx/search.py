@@ -123,8 +123,7 @@ def search_one_offline_request_safe(engine_name, query, request_params, result_c
             with threading.RLock():
         #----- modified by zjn -----
         #+= -> join().
-                engine.stats['engine_time']=join(engine_time)
-                #engine.stats['engine_time'] += engine_time
+                engine.stats['engine_time'] += engine_time
                 engine.stats['engine_time_count'] += 1
 
     except ValueError as e:
