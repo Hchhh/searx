@@ -88,10 +88,6 @@ engines:
     shortcut : wp
     base_url : 'https://{language}.wikipedia.org/'
 
-  - name : bing
-    engine : bing
-    shortcut : bi
-
   - name : bing images
     engine : bing_images
     shortcut : bii
@@ -754,6 +750,15 @@ engines:
     timeout: 6.0
     disabled: True
 
+  - name: bing
+    engine: bing
+    shortcut: bi
+
+  - name: soso
+    engine: soso
+    shortcut: ss
+
+  # ---------------------------------
 #  - name : yacy
 #    engine : yacy
 #    shortcut : ya

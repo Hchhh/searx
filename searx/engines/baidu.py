@@ -49,6 +49,7 @@ def request(query, params):
         params['data']['language'] = language
         params['data']['lui'] = language
 
+    print(params)
     return params
 
 

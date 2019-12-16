@@ -38,6 +38,8 @@ def request(query, params):
 
     query = u'language:{} {}'.format(lang.split('-')[0].upper(), query.decode('utf-8')).encode('utf-8')
 
+    print("*******", query)
+
     search_path = search_string.format(
         query=urlencode({'q': query}),
         offset=offset)
