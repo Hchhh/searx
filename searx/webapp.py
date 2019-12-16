@@ -157,6 +157,8 @@ outgoing_proxies = settings['outgoing'].get('proxies') or None
 
 @babel.localeselector
 def get_locale():
+    # ----- modified by WenkeHuang -----
+    # using if statement A and statement B to decrease the running time
     if 'locale' in request.form\
        and request.form['locale'] in settings['locales']:
         return request.form['locale']
@@ -208,8 +210,10 @@ def code_highlighter(codelines, language=None):
             line_code_start = line
 
         # add codepart
-        tmp_code += code + '\n'
-
+        # ----- modified by WenkeHuang -----
+        # using join rather than +=
+        # tmp_code += code + '\n'
+        tmp_code=tmp_code.join(code+'\n')
         # update line
         last_line = line
 
