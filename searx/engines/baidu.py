@@ -1,14 +1,6 @@
-#  Startpage (Web)
-#
-# @website     https://startpage.com
-# @provide-api no (nothing found)
-#
-# @using-api   no
-# @results     HTML
-# @stable      no (HTML can change)
-# @parse       url, title, content
-#
-# @todo        paging
+# ----- modified by HeJiaqing -----
+# ----- collect data from Baidu search engine ------
+
 
 from lxml import html
 from dateutil import parser
@@ -18,30 +10,26 @@ from searx.engines.xpath import extract_text
 from searx.languages import language_codes
 from searx.utils import eval_xpath
 
-# engine dependent config
+# 引擎所属类别
 categories = ['general']
-# there is a mechanism to block "bot" search
-# (probably the parameter qid), require
-# storing of qid's between mulitble search-calls
 
+# 默认设置页面以及语言
 paging = True
 language_support = True
 
-# search-url
+# 搜索url
 base_url = 'https://startpage.com/'
 search_url = base_url + 'do/search'
 
-# specific xpath variables
-# ads xpath //div[@id="results"]/div[@id="sponsored"]//div[@class="result"]
-# not ads: div[@class="result"] are the direct childs of div[@id="results"]
+# 广告信息的xpath标签 //*[@id="3005"]/div[2]/div/div[2]/div[2]/font[2]/a/span[@class="data-tuiguang"]
+# 非广告: div[@class="result"]
 results_xpath = '//div[@class="w-gl__result"]'
 link_xpath = './/a[@class="w-gl__result-title"]'
 content_xpath = './/p[@class="w-gl__description"]'
 
 
-# do search-request
+# 发送搜索请求
 def request(query, params):
-
     params['url'] = search_url
     params['method'] = 'POST'
     params['data'] = {
@@ -52,7 +40,7 @@ def request(query, params):
         'engine0': 'v1all',
     }
 
-    # set language if specified
+    # 指定搜索语言
     if params['language'] != 'all':
         language = 'english'
         for lc, _, _, lang in language_codes:
@@ -64,13 +52,13 @@ def request(query, params):
     return params
 
 
-# get response from search-request
+# 获取请求返回数据
 def response(resp):
     results = []
 
     dom = html.fromstring(resp.text)
 
-    # parse results
+    # parse results from response
     for result in eval_xpath(dom, results_xpath):
         links = eval_xpath(result, link_xpath)
         if not links:
@@ -78,14 +66,14 @@ def response(resp):
         link = links[0]
         url = link.attrib.get('href')
 
-        # block google-ad url's
+        # 正则表达式去除google广告
         if re.match(r"^http(s|)://(www\.)?google\.[a-z]+/aclk.*$", url):
             continue
 
-        # block startpage search url's
         if re.match(r"^http(s|)://(www\.)?startpage\.com/do/search\?.*$", url):
             continue
 
+        # get title element
         title = extract_text(link)
 
         if eval_xpath(result, content_xpath):
@@ -95,24 +83,22 @@ def response(resp):
 
         published_date = None
 
-        # check if search result starts with something like: "2 Sep 2014 ... "
+        # 正则表达式匹配时间参数
         if re.match(r"^([1-9]|[1-2][0-9]|3[0-1]) [A-Z][a-z]{2} [0-9]{4} \.\.\. ", content):
             date_pos = content.find('...') + 4
             date_string = content[0:date_pos - 5]
             published_date = parser.parse(date_string, dayfirst=True)
 
-            # fix content string
             content = content[date_pos:]
 
-        # check if search result starts with something like: "5 days ago ... "
+        # 正则表达式匹配信息日期格式：XXX天前
         elif re.match(r"^[0-9]+ days? ago \.\.\. ", content):
             date_pos = content.find('...') + 4
             date_string = content[0:date_pos - 5]
 
-            # calculate datetime
+            # 获取发布时间
             published_date = datetime.now() - timedelta(days=int(re.match(r'\d+', date_string).group()))
 
-            # fix content string
             content = content[date_pos:]
 
         if published_date:

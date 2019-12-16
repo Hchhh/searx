@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/groupproject.iml" filepath="$PROJECT_DIR$/.idea/groupproject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/searx-group.iml" filepath="$PROJECT_DIR$/.idea/searx-group.iml" />
     </modules>
   </component>
 </project>
