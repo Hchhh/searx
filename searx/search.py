@@ -165,6 +165,8 @@ def search_one_http_request_safe(engine_name, query, request_params, result_cont
         search_results = search_one_http_request(engine, query, request_params)
 
         # check if the engine accepted the request
+        #----- modified by zjn -----
+        #!=None->is not None  
         if search_results is not None:
             # yes, so add results
             result_container.extend(engine_name, search_results)
@@ -187,6 +189,8 @@ def search_one_http_request_safe(engine_name, query, request_params, result_cont
         result_container.add_timing(engine_name, engine_time, page_load_time)
 
         # Record the errors
+        #----- modified by zjn -----
+        #Lock->Rlock
         with threading.RLock():
             engine.stats['errors'] += 1
 
@@ -213,6 +217,8 @@ def search_one_http_request_safe(engine_name, query, request_params, result_cont
             logger.exception('engine {0} : exception : {1}'.format(engine_name, e))
 
     # suspend or not the engine if there are HTTP errors
+     #----- modified by zjn -----
+     #Lock->Rlock
     with threading.RLock():
         if requests_exception:
             # update continuous_errors / suspend_end_time
