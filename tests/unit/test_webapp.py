@@ -7,7 +7,8 @@ from searx.testing import SearxTestCase
 from searx.search import Search
 from searx.url_utils import ParseResult
 
-
+# ----- modified by 罗旸 -----
+#增添了搜索页面的csv、json、rss文件格式保存形式
 class ViewsTestCase(SearxTestCase):
 
     def setUp(self):
@@ -85,6 +86,7 @@ class ViewsTestCase(SearxTestCase):
             result.data
         )
 
+    # 利用测试用例，检测是否保存成功
     def test_index_json(self):
         result = self.app.post('/', data={'q': 'test', 'format': 'json'})
 

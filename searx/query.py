@@ -171,6 +171,8 @@ class RawTextQuery(object):
 
     def getFullQuery(self):
         # get full querry including whitespaces
+        # ----- modified by WenkeHuang -----
+        # using join rather than +=, the former one is faster than the later one
         return u''.join(self.query_parts)
 
 
