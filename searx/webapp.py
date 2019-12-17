@@ -314,7 +314,8 @@ def image_proxify(url):
 
 def render(template_name, override_theme=None, **kwargs):
     disabled_engines = request.preferences.engines.get_disabled()
-
+#----------------modified by zbw-------------------------------------------
+    #set has much better performance than list
     enabled_categories = set(category for engine_name in engines
                              for category in engines[engine_name].categories
                              if (engine_name, category) not in disabled_engines)
@@ -332,6 +333,7 @@ def render(template_name, override_theme=None, **kwargs):
                                         sorted(categories.keys())
                                         if x != 'general')
 
+
     if 'selected_categories' not in kwargs:
         kwargs['selected_categories'] = []
         for arg in request.args:
@@ -340,10 +342,10 @@ def render(template_name, override_theme=None, **kwargs):
                 if c in categories:
                     kwargs['selected_categories'].append(c)
 
+    # ----------------modified by zbw-------------------------------
     if not kwargs['selected_categories']:
         cookie_categories = request.preferences.get_value('categories')
-        for ccateg in cookie_categories:
-            kwargs['selected_categories'].append(ccateg)
+        kwargs['selected_categories']=(ccateg for ccateg in cookie_categories)
 
     if not kwargs['selected_categories']:
         kwargs['selected_categories'] = ['general']
@@ -421,9 +423,11 @@ def pre_request():
     # merge GET, POST vars
     # request.form
     request.form = dict(request.form.items())
-    for k, v in request.args.items():
+
+    #-----------------------modified by zbw-------------------
+    for k in request.args.items():
         if k not in request.form:
-            request.form[k] = v
+            request.form[k] = (v for v in request.args.items())
 
     if request.form.get('preferences'):
         preferences.parse_encoded_data(request.form['preferences'])
@@ -434,14 +438,12 @@ def pre_request():
             logger.exception('invalid settings')
             request.errors.append(gettext('Invalid settings'))
 
+    # ----------------modified by zbw-------------------------------
     # request.user_plugins
     request.user_plugins = []
     allowed_plugins = preferences.plugins.get_enabled()
     disabled_plugins = preferences.plugins.get_disabled()
-    for plugin in plugins:
-        if ((plugin.default_on and plugin.id not in disabled_plugins)
-                or plugin.id in allowed_plugins):
-            request.user_plugins.append(plugin)
+    request.user_plugins=(plugin for plugin in plugins if ((plugin.default_on and plugin.id not in disabled_plugins)or plugin.id in allowed_plugins))
 
 
 @app.after_request

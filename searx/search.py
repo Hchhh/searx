@@ -41,10 +41,9 @@ except:
 
 if sys.version_info[0] == 3:
     unicode = str
-
 logger = logger.getChild('search')
-
 number_of_searches = 0
+
 max_request_timeout = settings.get('outgoing', {}).get('max_request_timeout' or None)
 if max_request_timeout is None:
     logger.info('max_request_timeout={0}'.format(max_request_timeout))
@@ -117,12 +116,8 @@ def search_one_offline_request_safe(engine_name, query, request_params, result_c
             result_container.extend(engine_name, search_results)
 
             engine_time = time() - start_time
-            result_container.add_timing(engine_name, engine_time, engine_time)
-        #----- modified by zjn -----
-        #Lock->Rlock;       
+            result_container.add_timing(engine_name, engine_time, engine_time)      
             with threading.RLock():
-        #----- modified by zjn -----
-        #+= -> join().
                 engine.stats['engine_time'] += engine_time
                 engine.stats['engine_time_count'] += 1
 
@@ -163,9 +158,7 @@ def search_one_http_request_safe(engine_name, query, request_params, result_cont
         # send requests and parse the results
         search_results = search_one_http_request(engine, query, request_params)
 
-        # check if the engine accepted the request
-        #----- modified by zjn -----
-        #!=None->is not None  
+        # check if the engine accepted the request 
         if search_results is not None:
             # yes, so add results
             result_container.extend(engine_name, search_results)
@@ -188,8 +181,6 @@ def search_one_http_request_safe(engine_name, query, request_params, result_cont
         result_container.add_timing(engine_name, engine_time, page_load_time)
 
         # Record the errors
-        #----- modified by zjn -----
-        #Lock->Rlock
         with threading.RLock():
             engine.stats['errors'] += 1
 
@@ -216,8 +207,6 @@ def search_one_http_request_safe(engine_name, query, request_params, result_cont
             logger.exception('engine {0} : exception : {1}'.format(engine_name, e))
 
     # suspend or not the engine if there are HTTP errors
-     #----- modified by zjn -----
-     #Lock->Rlock
     with threading.RLock():
         if requests_exception:
             # update continuous_errors / suspend_end_time
@@ -246,6 +235,8 @@ def search_multiple_requests(requests, result_container, start_time, timeout_lim
     for th in threading.enumerate():
         if th.name == search_id:
             remaining_time = max(0.0, timeout_limit - (time() - start_time))
+            #----- modified by zjn------
+            #using join
             th.join(remaining_time)
             if th.isAlive():
                 result_container.add_unresponsive_engine((th._engine_name, gettext('timeout')))
