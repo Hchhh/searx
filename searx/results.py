@@ -12,15 +12,6 @@ if sys.version_info[0] == 3:
 CONTENT_LEN_IGNORED_CHARS_REGEX = re.compile(r'[,;:!?\./\\\\ ()-_]', re.M | re.U)
 WHITESPACE_REGEX = re.compile('( |\t|\n)+', re.M | re.U)
 
-
-# return the meaningful length of the content for a result
-def result_content_len(content):
-    if isinstance(content, basestring):
-        return len(CONTENT_LEN_IGNORED_CHARS_REGEX.sub('', content))
-    else:
-        return 0
-
-
 def compare_urls(url_a, url_b):
     # ignore www. in comparison
     if url_a.netloc.startswith('www.'):
@@ -44,6 +35,14 @@ def compare_urls(url_a, url_b):
         else url_b.path
 
     return unquote(path_a) == unquote(path_b)
+# return the meaningful length of the content for a result
+def result_content_len(content):
+    if isinstance(content, basestring):
+        return len(CONTENT_LEN_IGNORED_CHARS_REGEX.sub('', content))
+    else:
+        return 0
+
+
 
 
 def merge_two_infoboxes(infobox1, infobox2):
@@ -56,7 +55,6 @@ def merge_two_infoboxes(infobox1, infobox2):
         weight2 = engines[infobox2['engine']].weight
     else:
         weight2 = 1
-
     if weight2 > weight1:
         infobox1['engine'] = infobox2['engine']
 
@@ -67,9 +65,8 @@ def merge_two_infoboxes(infobox1, infobox2):
 
         for url2 in infobox2.get('urls', []):
             unique_url = True
-            parsed_url2 = urlparse(url2.get('url', ''))
-            for url1 in urls1:
-                if compare_urls(urlparse(url1.get('url', '')), parsed_url2):
+            for url1 in infobox1.get('urls', []):
+                if compare_urls(urlparse(url1.get('url', '')), urlparse(url2.get('url', ''))):
                     unique_url = False
                     break
             if unique_url:
@@ -87,7 +84,10 @@ def merge_two_infoboxes(infobox1, infobox2):
 
     if 'attributes' in infobox2:
         attributes1 = infobox1.get('attributes', None)
+         #----- modified by zjn -----
+         # ==None->is None
         if attributes1 is None:
+            
             attributes1 = []
             infobox1['attributes'] = attributes1
 
@@ -109,7 +109,7 @@ def merge_two_infoboxes(infobox1, infobox2):
         else:
             infobox1['content'] = content2
 
-
+#----- modified by zjn -----
 def result_score(result):
     weight = 1.0
 
@@ -118,8 +118,11 @@ def result_score(result):
             weight *= float(engines[result_engine].weight)
 
     occurences = len(result['positions'])
-
-    return sum((occurences * weight) / position for position in result['positions'])
+    # Sum(itreable,start)	从start开始遍历计算sum。
+    #此处重复计算了多次。
+    #return sum((occurences * weight) / position for position in result['positions'])
+    tmp=occurences*weight
+    return sum(tmp/position for position in result['positions'])
 
 
 class ResultContainer(object):
@@ -157,8 +160,11 @@ class ResultContainer(object):
             elif 'number_of_results' in result:
                 self._number_of_results.append(result['number_of_results'])
                 results.remove(result)
-
+#----- modified by zjn -----
         if engine_name in engines:
+            #with Lock();
+            #不加锁在多线程中可能会导致问题，增强程序健壮性
+            #RLock和Lock的区别：在同一线程内，对RLock进行多次操作，程序不会阻塞。
             with RLock():
                 engines[engine_name].stats['search_count'] += 1
                 engines[engine_name].stats['result_count'] += len(results)
@@ -189,9 +195,11 @@ class ResultContainer(object):
         add_infobox = True
         infobox_id = infobox.get('id', None)
         if infobox_id is not None:
-            parsed_url_infobox_id = urlparse(infobox_id)
+           #----- modified by zjn -----
+           #此处将内层if循环提前至for循环之前
+           #提前判断compare_urls(urlparse(existingIndex.get('id', '')), urlparse(infobox_id))
             for existingIndex in self.infoboxes:
-                if compare_urls(urlparse(existingIndex.get('id', '')), parsed_url_infobox_id):
+                if compare_urls(urlparse(existingIndex.get('id', '')), urlparse(infobox_id)):
                     merge_two_infoboxes(existingIndex, infobox)
                     add_infobox = False
 
@@ -226,6 +234,10 @@ class ResultContainer(object):
 
         # if there is no duplicate found, append result
         result['positions'] = [position]
+        #----- modified by zjn -----
+        #with Lock();
+        #不加锁在多线程中可能会导致问题，增强程序健壮性
+        #RLock和Lock的区别：在同一线程内，对RLock进行多次操作，程序不会阻塞。
         with RLock():
             self._merged_results.append(result)
 
@@ -271,13 +283,17 @@ class ResultContainer(object):
     def __merge_result_no_url(self, result, position):
         result['engines'] = set([result['engine']])
         result['positions'] = [position]
+        #----- modified by zjn -----
+        #with Lock();
         with RLock():
             self._merged_results.append(result)
 
     def order_results(self):
-        for result in self._merged_results:
+        for result in self._merged_results: 
             score = result_score(result)
             result['score'] = score
+        #----- modified by zjn -----
+        #with Lock();
             with RLock():
                 for result_engine in result['engines']:
                     engines[result_engine].stats['score_count'] += score
@@ -293,7 +309,7 @@ class ResultContainer(object):
             res['category'] = engines[res['engine']].categories[0]
 
             # FIXME : handle more than one category per engine
-            category = engines[res['engine']].categories[0]\
+             category = engines[res['engine']].categories[0]\
                 + ':' + res.get('template', '')\
                 + ':' + ('img_src' if 'img_src' in res or 'thumbnail' in res else '')
 
@@ -303,6 +319,10 @@ class ResultContainer(object):
             # group with previous results using the same category
             # if the group can accept more result and is not too far
             # from the current position
+
+            #----- modified by zjn -----
+            #and条件语句，将简单的判断条件提前
+            #一旦第一个条件不满足，后几个条件将不判断
             if current is not None and (current['count'] > 0)\
                     and (len(gresults) - current['index'] < 20):
                 # group with the previous results using

@@ -1,7 +1,11 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
+<!--modified by ly -->
+<!-- 利用opensearch与rss结合创建整个网页的索引 -->
 <rss version="2.0"
      xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
      xmlns:atom="http://www.w3.org/2005/Atom">
+  <!-- 定义RSS feed频道的相关信息 -->
   <channel>
     <title>Searx search: {{ q|e }}</title>
     <link>{{ base_url }}?q={{ q|e }}</link>
@@ -12,6 +16,7 @@
     <atom:link rel="search" type="application/opensearchdescription+xml" href="{{ base_url }}opensearch.xml"/>
     <opensearch:Query role="request" searchTerms="{{ q|e }}" startPage="1" />
     {% if error_message %}
+    <!--报错，不同的item定义feed中的不同信息 -->
     <item>
       <title>Error</title>
       <description>{{ error_message|e }}</description>

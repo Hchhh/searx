@@ -1,21 +1,10 @@
-"""
- Bing (Web)
-
- @website     https://www.bing.com
- @provide-api yes (http://datamarket.azure.com/dataset/bing/search),
-              max. 5000 query/month
-
- @using-api   no (because of query limit)
- @results     HTML (using search portal)
- @stable      no (HTML can change)
- @parse       url, title, content
-
- @todo        publishedDate
-"""
+# ----- modified by HeJiaqing -----
+# ----- collect data from Bing search engine ------
 
 import re
 from lxml import html
 from searx import logger, utils
+from searx.engines.archlinux import supported_languages
 from searx.engines.xpath import extract_text
 from searx.url_utils import urlencode
 from searx.utils import match_language, gen_useragent, eval_xpath
@@ -49,6 +38,8 @@ def request(query, params):
 
     query = u'language:{} {}'.format(lang.split('-')[0].upper(), query.decode('utf-8')).encode('utf-8')
 
+    print("*******", query)
+
     search_path = search_string.format(
         query=urlencode({'q': query}),
         offset=offset)
@@ -76,7 +67,7 @@ def response(resp):
                         'title': title,
                         'content': content})
 
-    # parse results again if nothing is found yet
+    # 国内版与国际版存在两个解析页面采用的信息标签不同，若sa_cc无法采集到信息则采用b_algo获取信息
     for result in eval_xpath(dom, '//li[@class="b_algo"]'):
         link = eval_xpath(result, './/h2/a')[0]
         url = link.attrib.get('href')
@@ -109,7 +100,7 @@ def response(resp):
     return results
 
 
-# get supported languages from their site
+# 获取网站支持语言
 def _fetch_supported_languages(resp):
     supported_languages = []
     dom = html.fromstring(resp.text)

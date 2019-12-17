@@ -155,8 +155,11 @@ _category_names = (gettext('files'),
 outgoing_proxies = settings['outgoing'].get('proxies') or None
 
 
+
 @babel.localeselector
 def get_locale():
+    # ----- modified by WenkeHuang -----
+    # using if statement A and statement B to decrease the running time
     if 'locale' in request.form\
        and request.form['locale'] in settings['locales']:
         return request.form['locale']
@@ -208,8 +211,10 @@ def code_highlighter(codelines, language=None):
             line_code_start = line
 
         # add codepart
-        tmp_code += code + '\n'
-
+        # ----- modified by WenkeHuang -----
+        # using join rather than +=
+        # tmp_code += code + '\n'
+        tmp_code=tmp_code.join(code+'\n')
         # update line
         last_line = line
 
@@ -444,15 +449,27 @@ def post_request(response):
     timings_all = ['total;dur=' + str(round(total_time * 1000, 3))]
     if len(request.timings) > 0:
         timings = sorted(request.timings, key=lambda v: v['total'])
-        timings_total = ['total_' + str(i) + '_' + v['engine'] +
-                         ';dur=' + str(round(v['total'] * 1000, 3)) for i, v in enumerate(timings)]
-        timings_load = ['load_' + str(i) + '_' + v['engine'] +
-                        ';dur=' + str(round(v['load'] * 1000, 3)) for i, v in enumerate(timings)]
+        # ----- modified by WenkeHuang -----
+        # this repeatedly calculate the same value in loop
+        # timings_total = ['total_' + str(i) + '_' + v['engine'] +
+        #                  ';dur=' + str(round(v['total'] * 1000, 3)) for i, v in enumerate(timings)]
+        # timings_load = ['load_' + str(i) + '_' + v['engine'] +
+        #                 ';dur=' + str(round(v['load'] * 1000, 3)) for i, v in enumerate(timings)]
+        for i, v in enumerate(timings):
+            temp_v1 = str(i)
+            temp_v2 = v['engine']
+            temp_v3 = str(round(v['total'] * 1000, 3))
+            timings_total = ['total_' + temp_v1 + '_' + temp_v2 +
+                             ';dur=' + temp_v3]
+            timings_load = ['load_' + temp_v1 + '_' + temp_v2 +
+                            ';dur=' + temp_v3]
+
         timings_all = timings_all + timings_total + timings_load
     response.headers.add('Server-Timing', ', '.join(timings_all))
     return response
 
-
+# ----- modified by ly -----
+#未爬取到数据，输出错误信息
 def index_error(output_format, error_message):
     if output_format == 'json':
         return Response(json.dumps({'error': error_message}),
@@ -567,8 +584,13 @@ def index():
                         result['publishedDate'] = gettext(u'{hours} hour(s), {minutes} minute(s) ago').format(hours=hours, minutes=minutes)  # noqa
                 else:
                     result['publishedDate'] = format_date(result['publishedDate'])
-
+    # ----- modified by ly -----
+    # 增加网页的不同输出格式的保存功能
     if output_format == 'json':
+        #对相关变量进行赋值，并利用爬虫返回json格式结果
+
+        #dump函数将字典中的数据转换为字符串便于写入json文件
+        #通过字典的值利用response对象进行爬虫爬取页面数据
         return Response(json.dumps({'query': search_query.query.decode('utf-8'),
                                     'number_of_results': number_of_results,
                                     'results': results,
@@ -579,20 +601,29 @@ def index():
                                     'unresponsive_engines': list(result_container.unresponsive_engines)},
                                    default=lambda item: list(item) if isinstance(item, set) else item),
                         mimetype='application/json')
+
     elif output_format == 'csv':
         csv = UnicodeWriter(StringIO())
+        #定义相关关键字
         keys = ('title', 'url', 'content', 'host', 'engine', 'score')
+        #写入
         csv.writerow(keys)
         for row in results:
+            #host关键字保存结果界面网址，解析url
             row['host'] = row['parsed_url'].netloc
             csv.writerow([row.get(key, '') for key in keys])
         csv.stream.seek(0)
+        #读取stream内容并爬取数据
         response = Response(csv.stream.read(), mimetype='application/csv')
         cont_disp = 'attachment;Filename=searx_-_{0}.csv'.format(search_query.query)
+        #在http响应内容的头部内容中增加描述
         response.headers.add('Content-Disposition', cont_disp)
         return response
+
     elif output_format == 'rss':
+        #渲染变量到模版中
         response_rss = render(
+            #调用xml文件，对参数赋值
             'opensearch_response_rss.xml',
             results=results,
             q=request.form['q'],
@@ -839,8 +870,7 @@ Allow: /
 Allow: /about
 Disallow: /stats
 Disallow: /preferences
-Disallow: /*?*q=*
-""", mimetype='text/plain')
+Disallow: /*?*q=""", mimetype='text/plain')
 
 
 @app.route('/opensearch.xml', methods=['GET'])
@@ -972,7 +1002,7 @@ class ReverseProxyPathFix(object):
 
 application = app
 # patch app to handle non root url-s behind proxy & wsgi
-app.wsgi_app = ReverseProxyPathFix(ProxyFix(application.wsgi_app))
+app.wsgi_app = ReverseProxyPathFix(application.wsgi_app)
 
 if __name__ == "__main__":
     run()
