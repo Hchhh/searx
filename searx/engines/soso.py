@@ -2,7 +2,7 @@
 # ----- collect data from Soso search engine ------
 from urllib.parse import urlencode
 
-from lxml import html
+from lxml import html, etree
 from dateutil import parser
 from datetime import datetime, timedelta
 import re
@@ -21,25 +21,32 @@ language_support = True
 # base_url = 'https://startpage.com/'
 # search_url = base_url + 'do/search'
 
-base_url = "https://www.sogou.com/"
-search_string = "tx?ie=utf8&pid=&{query}&w=&sut=1977&sst0=1576497589026&lkt=0%2C0%2C0"
+base_url = "https://weixin.sogou.com/"
+search_string = "weixin?type=2&{query}&ie=utf8&s_from=input&_sug_=y&_sug_type_=&w=01019900&sut=3253&sst0=1576584810616&lkt=1%2C1576584810514%2C1576584810514"
 
 # 广告信息的xpath标签 //*[@id="3005"]/div[2]/div/div[2]/div[2]/font[2]/a/span[@class="data-tuiguang"]
 # 非广告: div[@class="result"]
 # results_xpath = '//div[@class="w-gl__result"]'
 # link_xpath = './/a[@class="w-gl__result-title"]'
 # content_xpath = './/p[@class="w-gl__description"]'
-results_xpath = '//div[@class="vrwrap"]'
-link_xpath = '//h3[@class="vrTitle"]//a'
-title_xpath = '//h3[@class="vrTitle"]//a//em'
-content_xpath = '//p[@class="str_info"]'
-pubdate_xpath = '//div[@class="fb"]//cite'
+results_xpath = '//ul[@class="news-list"]//li'
+link_xpath = './/div[@class="txt-box"]//h3//a'
+content_xpath = './/p[@class="txt-info"]'
+pubdate_xpath = './/span[@class="s2"]'
+
+
+def _get_offset_from_pageno(pageno):
+    return (pageno - 1) + 1
 
 
 # 发送搜索请求
 def request(query, params):
+    # for i in range(10):
+    offset = _get_offset_from_pageno(params.get('pageno', 0))
+
     search_path = search_string.format(
-        query=urlencode({'query': query.decode('utf-8').encode('utf-8')}))
+        query=urlencode({'query': query.decode('utf-8').encode('utf-8')}),
+        page=0)
 
     search_url = base_url + search_path
     print(search_url)
@@ -95,20 +102,20 @@ def response(resp):
         published_content = extract_text(published_contents[0])
         # print("pubdate:",published_content)
         # 正则表达式匹配时间参数
-        if re.match(r"[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$", published_content):
+        if re.match(r"^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$", published_content):
             # date_pos = re.search(r"^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$", published_content).span()
             # date_string = published_content[date_pos]
-            published_date = published_content.split(' - ')[2]
+            published_date = published_content
             print(published_date)
 
 
 
-        # 正则表达式匹配信息日期格式：XXX天前
-        elif re.match(r"[0-9]+ 天? 前$", published_content):
+        # 正则表达式匹配信息日期格式：XXX小时前
+        elif re.match(r"[0-9]+ 小时? 前$", published_content):
             # published_date = published_content
             # date_string = published_content[date_pos]
             # published_date = parser.parse(date_string, dayfirst=True)
-            published_date = published_content.split(' - ')[2]
+            published_date = published_content
             print(published_date)
 
             # 获取发布时间
