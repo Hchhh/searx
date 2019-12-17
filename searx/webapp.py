@@ -314,7 +314,8 @@ def image_proxify(url):
 
 def render(template_name, override_theme=None, **kwargs):
     disabled_engines = request.preferences.engines.get_disabled()
-
+#----------------modified by zbw-------------------------------------------
+    #set has much better performance than list
     enabled_categories = set(category for engine_name in engines
                              for category in engines[engine_name].categories
                              if (engine_name, category) not in disabled_engines)
@@ -422,9 +423,11 @@ def pre_request():
     # merge GET, POST vars
     # request.form
     request.form = dict(request.form.items())
-    for k, v in request.args.items():
+
+    #-----------------------modified by zbw-------------------
+    for k in request.args.items():
         if k not in request.form:
-            request.form[k] = v
+            request.form[k] = (v for v in request.args.items())
 
     if request.form.get('preferences'):
         preferences.parse_encoded_data(request.form['preferences'])

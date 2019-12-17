@@ -309,7 +309,7 @@ class ResultContainer(object):
             res['category'] = engines[res['engine']].categories[0]
 
             # FIXME : handle more than one category per engine
-             category = engines[res['engine']].categories[0]\
+            category = engines[res['engine']].categories[0]\
                 + ':' + res.get('template', '')\
                 + ':' + ('img_src' if 'img_src' in res or 'thumbnail' in res else '')
 
@@ -348,8 +348,8 @@ class ResultContainer(object):
                 categoryPositions[category] = {'index': len(gresults), 'count': 8}
 
         # update _merged_results
-        self._ordered = True
-        self._merged_results = gresults
+            self._ordered = True
+            self._merged_results = gresults
 
     def get_ordered_results(self):
         if not self._ordered:

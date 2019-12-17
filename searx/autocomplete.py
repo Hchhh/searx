@@ -103,9 +103,8 @@ def searx_bang(full_query):
     result_set = set(results)
 
     # remove results which are already contained in the query
-    for query_part in full_query.query_parts:
-        if query_part in result_set:
-            result_set.remove(query_part)
+    #------------------modified by zbw---------------------------
+    result_set.remove(query_part for query_part in full_query.query_parts if query_part in result_set)
 
     # convert result_set back to list
     return list(result_set)
