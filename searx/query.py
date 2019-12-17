@@ -64,11 +64,8 @@ class RawTextQuery(object):
             parse_next = False
 
             # part does only contain spaces, skip
-            # ----- modified by WenkeHuang -----
-            # after testing, find that the latter one is more likely to be true
-            # so change their position to speed up the program
-            # if query_part.isspace() or query_part == '':
-            if query_part == '' or query_part.isspace():
+            if query_part.isspace()\
+               or query_part == '':
                 parse_next = True
                 self.query_parts.append(query_part)
                 continue
