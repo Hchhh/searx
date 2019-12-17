@@ -55,7 +55,6 @@ class RawTextQuery(object):
         raw_query_parts = re.split(r'(\s+)' if isinstance(self.query, str) else b'(\s+)', self.query)
 
         parse_next = True
-
         for query_part in raw_query_parts:
             if not parse_next:
                 self.query_parts[-1] += query_part

@@ -58,20 +58,17 @@ def searx_bang(full_query):
         else:
             engine_query = full_query.getSearchQuery()[1:]
 
+#-------------------modified by zbw-------------------------------------------------
             # check if query starts with categorie name
-            for categorie in categories:
-                if categorie.startswith(engine_query):
-                    results.append(first_char + '{categorie}'.format(categorie=categorie))
+
+            results=(first_char + '{categorie}'.format(categorie=categorie) for categorie in categories if categorie.startswith(engine_query))
 
             # check if query starts with engine name
-            for engine in engines:
-                if engine.startswith(engine_query.replace('_', ' ')):
-                    results.append(first_char + '{engine}'.format(engine=engine.replace(' ', '_')))
+            results=(first_char + '{engine}'.format(engine=engine.replace(' ', '_')) for engine in engines if engine.startswith(engine_query.replace('_', ' ')))
 
             # check if query starts with engine shortcut
-            for engine_shortcut in engine_shortcuts:
-                if engine_shortcut.startswith(engine_query):
-                    results.append(first_char + '{engine_shortcut}'.format(engine_shortcut=engine_shortcut))
+            results.append(first_char + '{engine_shortcut}'.format(engine_shortcut=engine_shortcut) for engine_shortcut in engine_shortcuts if engine_shortcut.startswith(engine_query))
+#-----------------------------------------------------------------------------------
 
     # check if current query stats with :bang
     elif first_char == ':':
