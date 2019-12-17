@@ -19,7 +19,7 @@ supported_languages_url = 'https://www.bing.com/account/general'
 language_aliases = {'zh-CN': 'zh-CHS', 'zh-TW': 'zh-CHT', 'zh-HK': 'zh-CHT'}
 
 # search-url
-base_url = 'https://www.bing.com/'
+base_url = 'https://cn.bing.com/'
 search_string = 'search?{query}&first={offset}'
 
 
