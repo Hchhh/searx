@@ -1,5 +1,6 @@
 # ----- modified by HeJiaqing -----
-# ----- collect data from Soso search engine ------
+# ----- collect data from Zhihu search engine ------
+
 from urllib.parse import urlencode
 
 from lxml import html, etree
@@ -21,18 +22,18 @@ language_support = True
 # base_url = 'https://startpage.com/'
 # search_url = base_url + 'do/search'
 
-base_url = "https://weixin.sogou.com/"
-search_string = "weixin?type=2&{query}&ie=utf8&s_from=input&_sug_=y&_sug_type_=&w=01019900&sut=3253&sst0=1576584810616&lkt=1%2C1576584810514%2C1576584810514"
+base_url = "https://www.sogou.com/"
+search_string = "sogou?{query}&pid=sogou-wsse-ff111e4a5406ed40&insite=zhihu.com&sut=1364&sst0=1576587344577&lkt=1%2C1576587344474%2C1576587344474&{page}&ie=utf8"
 
 # 广告信息的xpath标签 //*[@id="3005"]/div[2]/div/div[2]/div[2]/font[2]/a/span[@class="data-tuiguang"]
 # 非广告: div[@class="result"]
 # results_xpath = '//div[@class="w-gl__result"]'
 # link_xpath = './/a[@class="w-gl__result-title"]'
 # content_xpath = './/p[@class="w-gl__description"]'
-results_xpath = '//ul[@class="news-list"]//li'
-link_xpath = './/div[@class="txt-box"]//h3//a'
-content_xpath = './/p[@class="txt-info"]'
-pubdate_xpath = './/span[@class="s2"]'
+results_xpath = '//div[@class="vr-zhihu180918"]'
+link_xpath = './/h3[@class="vrTitle"]//a'
+content_xpath = './/div[@class="img-text"]//div[@class="text-layout"]//p'
+pubdate_xpath = './/div[@class="fb"]//cite'
 
 
 def _get_offset_from_pageno(pageno):

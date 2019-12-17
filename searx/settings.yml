@@ -750,13 +750,17 @@ engines:
     timeout: 6.0
     disabled: True
 
-  - name: bing
-    engine: bing
+  - name: bingcn
+    engine: bingcn
     shortcut: bi
 
   - name: soso
     engine: soso
     shortcut: ss
+
+  - name: zhihu
+    engine: zhihu
+    shortcut: zh
 
   # ---------------------------------
 #  - name : yacy
