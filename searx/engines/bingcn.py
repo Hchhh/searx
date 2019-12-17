@@ -1,5 +1,5 @@
 # ----- modified by HeJiaqing -----
-# ----- collect data from Bing search engine ------
+# ----- collect data from Bing_CN search engine ------
 
 import re
 from lxml import html

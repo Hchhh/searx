@@ -1,44 +1,44 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 import mock
-from searx.engines import bing
+from searx.engines import bingcn
 from searx.testing import SearxTestCase
 
 
-class TestBingEngine(SearxTestCase):
+class TestbingcnEngine(SearxTestCase):
 
     def test_request(self):
-        bing.supported_languages = ['en', 'fr', 'zh-CHS', 'zh-CHT', 'pt-PT', 'pt-BR']
+        bingcn.supported_languages = ['en', 'fr', 'zh-CHS', 'zh-CHT', 'pt-PT', 'pt-BR']
         query = u'test_query'
         dicto = defaultdict(dict)
         dicto['pageno'] = 1
         dicto['language'] = 'fr-FR'
-        params = bing.request(query.encode('utf-8'), dicto)
+        params = bingcn.request(query.encode('utf-8'), dicto)
         self.assertTrue('url' in params)
         self.assertTrue(query in params['url'])
         self.assertTrue('language%3AFR' in params['url'])
         self.assertTrue('bing.com' in params['url'])
 
         dicto['language'] = 'all'
-        params = bing.request(query.encode('utf-8'), dicto)
+        params = bingcn.request(query.encode('utf-8'), dicto)
         self.assertTrue('language' in params['url'])
 
     def test_response(self):
         dicto = defaultdict(dict)
         dicto['pageno'] = 1
         dicto['language'] = 'fr-FR'
-        self.assertRaises(AttributeError, bing.response, None)
-        self.assertRaises(AttributeError, bing.response, [])
-        self.assertRaises(AttributeError, bing.response, '')
-        self.assertRaises(AttributeError, bing.response, '[]')
+        self.assertRaises(AttributeError, bingcn.response, None)
+        self.assertRaises(AttributeError, bingcn.response, [])
+        self.assertRaises(AttributeError, bingcn.response, '')
+        self.assertRaises(AttributeError, bingcn.response, '[]')
 
         response = mock.Mock(text='<html></html>')
         response.search_params = dicto
-        self.assertEqual(bing.response(response), [])
+        self.assertEqual(bingcn.response(response), [])
 
         response = mock.Mock(text='<html></html>')
         response.search_params = dicto
-        self.assertEqual(bing.response(response), [])
+        self.assertEqual(bingcn.response(response), [])
 
         html = """
         <div>
@@ -68,7 +68,7 @@ class TestBingEngine(SearxTestCase):
         """
         response = mock.Mock(text=html)
         response.search_params = dicto
-        results = bing.response(response)
+        results = bingcn.response(response)
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0]['title'], 'This should be the title')
@@ -105,7 +105,7 @@ class TestBingEngine(SearxTestCase):
         dicto['pageno'] = 2
         response = mock.Mock(text=html)
         response.search_params = dicto
-        results = bing.response(response)
+        results = bingcn.response(response)
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0]['title'], 'This should be the title')
@@ -142,13 +142,13 @@ class TestBingEngine(SearxTestCase):
         dicto['pageno'] = 33900000
         response = mock.Mock(text=html)
         response.search_params = dicto
-        results = bing.response(response)
-        self.assertEqual(bing.response(response), [])
+        results = bingcn.response(response)
+        self.assertEqual(bingcn.response(response), [])
 
     def test_fetch_supported_languages(self):
         html = """<html></html>"""
         response = mock.Mock(text=html)
-        results = bing._fetch_supported_languages(response)
+        results = bingcn._fetch_supported_languages(response)
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 0)
 
@@ -170,7 +170,7 @@ class TestBingEngine(SearxTestCase):
         </html>
         """
         response = mock.Mock(text=html)
-        languages = bing._fetch_supported_languages(response)
+        languages = bingcn._fetch_supported_languages(response)
         self.assertEqual(type(languages), list)
         self.assertEqual(len(languages), 3)
         self.assertIn('es', languages)
