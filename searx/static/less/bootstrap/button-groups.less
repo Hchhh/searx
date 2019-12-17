@@ -87,13 +87,6 @@
   .border-left-radius(0);
 }
 
-// On active and open, don't show outline
-.btn-group .dropdown-toggle:active,
-.btn-group.open .dropdown-toggle {
-  outline: 0;
-}
-
-
 // Sizing
 //
 // Remix the default button sizing classes into new ones for easier manipulation.
@@ -102,9 +95,16 @@
 .btn-group-sm > .btn { &:extend(.btn-sm); }
 .btn-group-lg > .btn { &:extend(.btn-lg); }
 
+// On active and open, don't show outline
+.btn-group .dropdown-toggle:active,
+.btn-group.open .dropdown-toggle {
+  outline: 0;
+}
+
+
 
 // Split button dropdowns
-// ----------------------
+
 
 // Give the line between buttons some depth
 .btn-group > .btn + .dropdown-toggle {

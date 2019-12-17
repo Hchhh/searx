@@ -92,6 +92,18 @@
   }
 }
 
+
+.make-lg-column-offset(@columns) {
+  @media (min-width: @screen-lg-min) {
+    margin-left: percentage((@columns / @grid-columns));
+  }
+}
+.make-lg-column-push(@columns) {
+  @media (min-width: @screen-lg-min) {
+    left: percentage((@columns / @grid-columns));
+  }
+}
+
 // Generate the large columns
 .make-lg-column(@columns; @gutter: @grid-gutter-width) {
   position: relative;
@@ -102,16 +114,6 @@
   @media (min-width: @screen-lg-min) {
     float: left;
     width: percentage((@columns / @grid-columns));
-  }
-}
-.make-lg-column-offset(@columns) {
-  @media (min-width: @screen-lg-min) {
-    margin-left: percentage((@columns / @grid-columns));
-  }
-}
-.make-lg-column-push(@columns) {
-  @media (min-width: @screen-lg-min) {
-    left: percentage((@columns / @grid-columns));
   }
 }
 .make-lg-column-pull(@columns) {
